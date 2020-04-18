@@ -49,24 +49,30 @@
       if (!state){
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
-      let t = 1000 * Math.random() * (state.max - state.min) + state.min * 1000;
+      
 
       var sel = document.getElementById("drills");
-      var val = sel.options[sel.selectedIndex].value;
-      let text;
+      var val = state.val;
       if (val === "Day2") {
-        text = nextRandomDay2Text();
+        nextRandomDay2Text(state);
       } else if (val === "Day3") {
-        text = nextRandomDay3Text();
+        nextRandomDay3Text(state);
       } else if (val === "Day4a") {
-        text = nextRandomDay4ReversalText();
+        nextRandomDay4ReversalText(state);
       } else if (val === "Day4b") {
-        text = nextRandomDay4RedGreenLightText(state);
+        nextRandomDay4RedGreenLightText(state);
       }
-      speak(text);
-      document.getElementById("display").innerHTML = text;
-      console.log(state);
-      state.mainLoop = setTimeout(() => main(state), t);
+      speak(state.text);
+      document.getElementById("display").innerHTML = state.text;
+      state.mainLoop = setTimeout(() => main(state), getTime(state));
+    }
+
+    function getTime(state){
+      if (state.isRed){
+        return 1000 * Math.random() + 1500;//We don't want people waiting very long at a red light.
+      } else {
+        return 1000 * Math.random() * (state.max - state.min) + state.min * 1000;
+      }
     }
 
     function start(state) {
@@ -75,6 +81,8 @@
       }
       state.min = document.getElementById("min").value;
       state.max = document.getElementById("max").value;
+      var sel = document.getElementById("drills");
+      state.val = sel.options[sel.selectedIndex].value;
       let dur = parseInt(document.getElementById("dur").value);
       speak("Get ready!");
       document.getElementById("display").innerHTML = "Get Ready!";
@@ -97,33 +105,32 @@
       document.getElementById("button").onclick = () => start(state);
     }
 
-    function nextRandomDay2Text() {
+    function nextRandomDay2Text(state) {
       let options = ['Forward', 'Back', 'Left', 'Right', 'Turn Left', 'Turn Right'];
       let index = Math.floor(Math.random() * options.length);
-      let text = options[index];
-      return text;
+      state.text = options[index];
     }
 
-    function nextRandomDay3Text() {
-      return Math.ceil(Math.random() * 12);
+    function nextRandomDay3Text(state) {
+      state.text = Math.ceil(Math.random() * 12);
     }
 
-    function nextRandomDay4ReversalText() {
-      return "Reverse";
+    function nextRandomDay4ReversalText(state) {
+      state.text = "Reverse";
     }
 
     function nextRandomDay4RedGreenLightText(state) {
       if (!state){
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
-      if (state.redGreen === 'Green light') {
-        state.redGreen = 'Red light';
-        return 'Red light';
+      if (state.isRed === undefined || state.isRed) {
+        state.isRed = false;
+        state.text = 'Green light';
       } else {
-        state.redGreen = 'Green light';
-        return 'Green light';
+        state.isRed = true;
+        state.text = 'Red light';
       }
-      return Math.ceil(Math.random() * 12);
+      console.log(state);
     }
     
     function clearState(state){
