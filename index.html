@@ -11,92 +11,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
     integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
     crossorigin="anonymous"></script>
-  <style>
-    /* Space out content a bit */
-    body {
-      padding-top: 20px;
-      padding-bottom: 20px;
-    }
-
-    /* Everything but the jumbotron gets side spacing for mobile first views */
-    .header,
-    .marketing,
-    .footer {
-      padding-right: 15px;
-      padding-left: 15px;
-    }
-
-    /* Custom page header */
-    .header {
-      padding-bottom: 20px;
-      border-bottom: 1px solid #e5e5e5;
-    }
-
-    .header h3 {
-      margin-top: 0;
-      margin-bottom: 0;
-      line-height: 40px;
-      /* Make the masthead heading the same height as the navigation */
-    }
-
-    /* Custom page footer */
-    .footer {
-      padding-top: 19px;
-      color: #777;
-      border-top: 1px solid #e5e5e5;
-    }
-
-    /* Customize container */
-    @media (min-width: 768px) {
-      .container {
-        max-width: 730px;
-      }
-    }
-
-    .container-narrow>hr {
-      margin: 30px 0;
-    }
-
-    /* Main marketing message and sign up button */
-    .jumbotron {
-      text-align: center;
-      border-bottom: 1px solid #e5e5e5;
-    }
-
-    .jumbotron .btn {
-      padding: 14px 24px;
-      font-size: 21px;
-    }
-
-    /* Supporting marketing content */
-    .marketing {
-      margin: 40px 0;
-    }
-
-    .marketing p+h4 {
-      margin-top: 28px;
-    }
-
-    /* Responsive: Portrait tablets and up */
-    @media screen and (min-width: 768px) {
-
-      /* Remove the padding we set earlier */
-      .header,
-      .marketing,
-      .footer {
-        padding-right: 0;
-        padding-left: 0;
-      }
-
-      .header {
-        margin-bottom: 30px;
-      }
-
-      .jumbotron {
-        border-bottom: 0;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
   <script>
     function setVoice() {
       var available_voices = window.speechSynthesis.getVoices();
@@ -110,16 +25,15 @@
           break;
         }
       }
+      if (window.english_voice === '')
+        window.english_voice = available_voices[0];
     }
 
     function setup() {
       setTimeout(() => {
-        setVoice
+        setVoice()
       }, 2000);
-      if (window.english_voice === '')
-        window.english_voice = available_voices[0];
-      window.go = false;
-      window.green = true;
+      window.state = {};
     }
 
     function speak(text) {
@@ -131,47 +45,56 @@
       window.speechSynthesis.speak(utter);
     }
 
-    function main() {
-      let t = 1000 * Math.random() * (window.max - window.min) + window.min * 1000;
-      if (window.go) {
-
-        var sel = document.getElementById("drills");
-        var val = sel.options[sel.selectedIndex].value;
-        let text;
-        if (val === "Day2") {
-          text = nextRandomDay2Text();
-        } else if (val === "Day3") {
-          text = nextRandomDay3Text();
-        }
-        speak(text);
-        document.getElementById("display").innerHTML = text;
+    function main(state) {
+      if (!state){
+        throw Error("State is undefined. Did you forgt to pass it in?");
       }
+      let t = 1000 * Math.random() * (state.max - state.min) + state.min * 1000;
 
-      setTimeout(main, t);
+      var sel = document.getElementById("drills");
+      var val = sel.options[sel.selectedIndex].value;
+      let text;
+      if (val === "Day2") {
+        text = nextRandomDay2Text();
+      } else if (val === "Day3") {
+        text = nextRandomDay3Text();
+      } else if (val === "Day4a") {
+        text = nextRandomDay4ReversalText();
+      } else if (val === "Day4b") {
+        text = nextRandomDay4RedGreenLightText(state);
+      }
+      speak(text);
+      document.getElementById("display").innerHTML = text;
+      console.log(state);
+      state.mainLoop = setTimeout(() => main(state), t);
     }
 
-    function toggle() {
-      clearTimeout(window.kill);
-      let nextGo = !window.go;
-      window.min = document.getElementById("min").value;
-      window.max = document.getElementById("max").value;
-      dur = parseInt(document.getElementById("dur").value);
-      if (nextGo) {
-        speak("Get ready!");
-        document.getElementById("display").innerHTML = "Get Ready!";
-        document.getElementById("button").innerHTML = "Stop";
-        window.kill = setTimeout(() => {
-          toggle();
-          speak("Time's up! Good Job!");
-        }, dur * 1000);
-        setTimeout(() => {
-          window.go = nextGo;
-        }, 1000);
-      } else {
-        document.getElementById("display").innerHTML = "Instructions will display here";
-        document.getElementById("button").innerHTML = "Start";
-        window.go = nextGo;
+    function start(state) {
+      if (!state){
+        throw Error("State is undefined. Did you forgt to pass it in?");
       }
+      state.min = document.getElementById("min").value;
+      state.max = document.getElementById("max").value;
+      let dur = parseInt(document.getElementById("dur").value);
+      speak("Get ready!");
+      document.getElementById("display").innerHTML = "Get Ready!";
+      document.getElementById("button").innerHTML = "Stop";
+      document.getElementById("button").onclick = () => stop(state);
+      state.kill = setTimeout(() => {
+        stop(state);
+        speak("Time's up! Good Job!");
+      }, dur * 1000);
+      state.mainLoop = setTimeout(() => main(state), 3000);
+    }
+
+    function stop(state) {
+      if (!state){
+        throw Error("State is undefined. Did you forgt to pass it in?");
+      }
+      state = clearState(state);
+      document.getElementById("display").innerHTML = "Instructions will display here";
+      document.getElementById("button").innerHTML = "Start";
+      document.getElementById("button").onclick = () => start(state);
     }
 
     function nextRandomDay2Text() {
@@ -184,24 +107,44 @@
     function nextRandomDay3Text() {
       return Math.ceil(Math.random() * 12);
     }
-    setup();
-    main();
 
+    function nextRandomDay4ReversalText() {
+      return "Reverse";
+    }
+
+    function nextRandomDay4RedGreenLightText(state) {
+      if (!state){
+        throw Error("State is undefined. Did you forgt to pass it in?");
+      }
+      if (state.redGreen === 'Green light') {
+        state.redGreen = 'Red light';
+        return 'Red light';
+      } else {
+        state.redGreen = 'Green light';
+        return 'Green light';
+      }
+      return Math.ceil(Math.random() * 12);
+    }
+    
+    function clearState(state){
+      if (!state){
+        throw Error("State is undefined. Did you forgt to pass it in?");
+      }
+      if (state.mainLoop){
+        clearTimeout(state.mainLoop);        
+      }
+      if (state.kill) {
+        clearTimeout(state.kill);
+      }
+      return {};
+    }
+    setup();
   </script>
 </head>
 
 <body>
   <div class="container">
     <div class="header clearfix">
-      <!--
-        <nav>
-          <ul class="nav nav-pills pull-right">
-            <li role="presentation" class="active"><a href="#">Home</a></li>
-            <li role="presentation"><a href="#">About</a></li>
-            <li role="presentation"><a href="#">Contact</a></li>
-          </ul>
-        </nav>
-      -->
       <h3 class="text-muted">SLDM Footwork Agility Drill Randomizer</h3>
     </div>
 
@@ -222,15 +165,17 @@
       <div>
         <label>Drill</label>
         <select id="drills">
-          <option value="Day2">Day 2</option>
-          <option value="Day3">Day 3</option>
+          <option value="Day2">Day 2 (Different Direcitons)</option>
+          <option value="Day3">Day 3 (Hours on the clock)</option>
+          <option value="Day4a">Day 4 (Reversals)</option>
+          <option value="Day4b">Day 4 (Red/Green Light)</option>
         </select>
       </div>
       <div>
         <p>
           Click to begin!
         </p>
-        <button id="button" onclick="toggle()">Start</button>
+        <button id="button" onclick="start(window.state)">Start</button>
       </div>
       <h4 id="display">Instructions will display here</h4>
     </div>
