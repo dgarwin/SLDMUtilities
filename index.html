@@ -1,0 +1,238 @@
+<head>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+    integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+    integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+    crossorigin="anonymous"></script>
+  <style>
+    /* Space out content a bit */
+    body {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    /* Everything but the jumbotron gets side spacing for mobile first views */
+    .header,
+    .marketing,
+    .footer {
+      padding-right: 15px;
+      padding-left: 15px;
+    }
+
+    /* Custom page header */
+    .header {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .header h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+      line-height: 40px;
+      /* Make the masthead heading the same height as the navigation */
+    }
+
+    /* Custom page footer */
+    .footer {
+      padding-top: 19px;
+      color: #777;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    /* Customize container */
+    @media (min-width: 768px) {
+      .container {
+        max-width: 730px;
+      }
+    }
+
+    .container-narrow>hr {
+      margin: 30px 0;
+    }
+
+    /* Main marketing message and sign up button */
+    .jumbotron {
+      text-align: center;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .jumbotron .btn {
+      padding: 14px 24px;
+      font-size: 21px;
+    }
+
+    /* Supporting marketing content */
+    .marketing {
+      margin: 40px 0;
+    }
+
+    .marketing p+h4 {
+      margin-top: 28px;
+    }
+
+    /* Responsive: Portrait tablets and up */
+    @media screen and (min-width: 768px) {
+
+      /* Remove the padding we set earlier */
+      .header,
+      .marketing,
+      .footer {
+        padding-right: 0;
+        padding-left: 0;
+      }
+
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .jumbotron {
+        border-bottom: 0;
+      }
+    }
+  </style>
+  <script>
+    function setVoice() {
+      var available_voices = window.speechSynthesis.getVoices();
+      // this will hold an english voice
+      window.english_voice = '';
+      // find voice by language locale "en-US"
+      // if not then select the first voice
+      for (var i = 0; i < available_voices.length; i++) {
+        if (available_voices[i].lang === 'en-US') {
+          window.english_voice = available_voices[i];
+          break;
+        }
+      }
+    }
+
+    function setup() {
+      setTimeout(() => {
+        setVoice
+      }, 2000);
+      if (window.english_voice === '')
+        window.english_voice = available_voices[0];
+      window.go = false;
+      window.green = true;
+    }
+
+    function speak(text) {
+      var utter = new SpeechSynthesisUtterance();
+      utter.rate = 1;
+      utter.pitch = 0.7;
+      utter.voice = window.english_voice;
+      utter.text = text;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function main() {
+      let t = 1000 * Math.random() * (window.max - window.min) + window.min * 1000;
+      if (window.go) {
+
+        var sel = document.getElementById("drills");
+        var val = sel.options[sel.selectedIndex].value;
+        let text;
+        if (val === "Day2") {
+          text = nextRandomDay2Text();
+        } else if (val === "Day3") {
+          text = nextRandomDay3Text();
+        }
+        speak(text);
+        document.getElementById("display").innerHTML = text;
+      }
+
+      setTimeout(main, t);
+    }
+
+    function toggle() {
+      clearTimeout(window.kill);
+      let nextGo = !window.go;
+      window.min = document.getElementById("min").value;
+      window.max = document.getElementById("max").value;
+      dur = parseInt(document.getElementById("dur").value);
+      if (nextGo) {
+        speak("Get ready!");
+        document.getElementById("display").innerHTML = "Get Ready!";
+        document.getElementById("button").innerHTML = "Stop";
+        window.kill = setTimeout(() => {
+          toggle();
+          speak("Time's up! Good Job!");
+        }, dur * 1000);
+        setTimeout(() => {
+          window.go = nextGo;
+        }, 1000);
+      } else {
+        document.getElementById("display").innerHTML = "Instructions will display here";
+        document.getElementById("button").innerHTML = "Start";
+        window.go = nextGo;
+      }
+    }
+
+    function nextRandomDay2Text() {
+      let options = ['Forward', 'Back', 'Left', 'Right', 'Turn Left', 'Turn Right'];
+      let index = Math.floor(Math.random() * options.length);
+      let text = options[index];
+      return text;
+    }
+
+    function nextRandomDay3Text() {
+      return Math.ceil(Math.random() * 12);
+    }
+    setup();
+    main();
+
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header clearfix">
+      <!--
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active"><a href="#">Home</a></li>
+            <li role="presentation"><a href="#">About</a></li>
+            <li role="presentation"><a href="#">Contact</a></li>
+          </ul>
+        </nav>
+      -->
+      <h3 class="text-muted">SDLM Footwork Agility Drill Randomizer</h3>
+    </div>
+
+    <div class="jumbotron">
+      <h2>Please select your options</h2>
+      <div>
+        <label>Min Delay(s)</label>
+        <input id="min" type="number" value="2" />
+      </div>
+      <div>
+        <label>Max Delay(s)</label>
+        <input id="max" type="number" value="4" />
+      </div>
+      <div>
+        <label>Duration(s)</label>
+        <input id="dur" type="number" value="90" />
+      </div>
+      <div>
+        <label>Drill</label>
+        <select id="drills">
+          <option value="Day2">Day 2</option>
+          <option value="Day3">Day 3</option>
+        </select>
+      </div>
+      <div>
+        <p>
+          Click to begin!
+        </p>
+        <button id="button" onclick="toggle()">Start</button>
+      </div>
+      <h4 id="display">Instructions will display here</h4>
+    </div>
+  </div>
+</body>
