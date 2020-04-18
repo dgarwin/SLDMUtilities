@@ -46,29 +46,36 @@
     }
 
     function main(state) {
-      if (!state){
+      if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
-      
+
 
       var sel = document.getElementById("drills");
       var val = state.val;
       if (val === "Day2") {
-        nextRandomDay2Text(state);
+        setStateDay2(state);
       } else if (val === "Day3") {
-        nextRandomDay3Text(state);
+        setStateDay3(state);
       } else if (val === "Day4a") {
-        nextRandomDay4ReversalText(state);
+        setStateDay4Reversals(state);
       } else if (val === "Day4b") {
-        nextRandomDay4RedGreenLightText(state);
+        setStateDay4RedGreenLight(state);
       }
-      speak(state.text);
+      if (state.speechText) {
+        speak(state.speechText);
+      } else {
+        speak(state.text);
+      }
+      if (state.textColor) {
+        document.getElementById("display").style.color = state.textColor;
+      }
       document.getElementById("display").innerHTML = state.text;
       state.mainLoop = setTimeout(() => main(state), getTime(state));
     }
 
-    function getTime(state){
-      if (state.isRed){
+    function getTime(state) {
+      if (state.isRed) {
         return 1000 * Math.random() + 1500;//We don't want people waiting very long at a red light.
       } else {
         return 1000 * Math.random() * (state.max - state.min) + state.min * 1000;
@@ -76,7 +83,7 @@
     }
 
     function start(state) {
-      if (!state){
+      if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
       state.min = document.getElementById("min").value;
@@ -96,49 +103,60 @@
     }
 
     function stop(state) {
-      if (!state){
+      if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
       state = clearState(state);
       document.getElementById("display").innerHTML = "Instructions will display here";
+      document.getElementById("display").style.color = "black";
       document.getElementById("button").innerHTML = "Start";
       document.getElementById("button").onclick = () => start(state);
     }
 
-    function nextRandomDay2Text(state) {
-      let options = ['Forward', 'Back', 'Left', 'Right', 'Turn Left', 'Turn Right'];
+    function setStateDay2(state) {
+      let options = [
+        ['Forward', 'Forward <h1>☝️</h1>'],
+        ['Back', 'Back <h1>👇</h1>'],
+        ['Left', 'Left <h1>👈</h1>'],
+        ['Right', 'Right <h1>👉</h1>'],
+        ['Turn Left', 'Turn Left <h1>↩️</h1>'],
+        ['Turn Right', 'Turn Right <h1>↪️</h1>']
+      ];
       let index = Math.floor(Math.random() * options.length);
-      state.text = options[index];
+      state.speechText = options[index][0];
+      state.text = options[index][1];
     }
 
-    function nextRandomDay3Text(state) {
+    function setStateDay3(state) {
       state.text = Math.ceil(Math.random() * 12);
     }
 
-    function nextRandomDay4ReversalText(state) {
+    function setStateDay4Reversals(state) {
       state.text = "Reverse";
     }
 
-    function nextRandomDay4RedGreenLightText(state) {
-      if (!state){
+    function setStateDay4RedGreenLight(state) {
+      if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
       if (state.isRed === undefined || state.isRed) {
         state.isRed = false;
         state.text = 'Green light';
+        state.textColor = 'green'
       } else {
         state.isRed = true;
         state.text = 'Red light';
+        state.textColor = 'red';
       }
       console.log(state);
     }
-    
-    function clearState(state){
-      if (!state){
+
+    function clearState(state) {
+      if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
-      if (state.mainLoop){
-        clearTimeout(state.mainLoop);        
+      if (state.mainLoop) {
+        clearTimeout(state.mainLoop);
       }
       if (state.kill) {
         clearTimeout(state.kill);
@@ -157,22 +175,23 @@
 
     <div class="jumbotron">
       <h2>Please select your options</h2>
+      <h5>Don't forget to turn your audio 🔊 on!</h5>
       <div>
-        <label>Min Delay(s)</label>
+        <label>Min Delay (s)</label>
         <input id="min" type="number" value="2" />
       </div>
       <div>
-        <label>Max Delay(s)</label>
+        <label>Max Delay (s)</label>
         <input id="max" type="number" value="4" />
       </div>
       <div>
-        <label>Duration(s)</label>
+        <label>Duration (s)</label>
         <input id="dur" type="number" value="90" />
       </div>
       <div>
         <label>Drill</label>
         <select id="drills">
-          <option value="Day2">Day 2 (Different Direcitons)</option>
+          <option value="Day2">Day 2 (Different Directions)</option>
           <option value="Day3">Day 3 (Hours on the clock)</option>
           <option value="Day4a">Day 4 (Reversals)</option>
           <option value="Day4b">Day 4 (Red/Green Light)</option>
