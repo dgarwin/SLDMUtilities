@@ -51,23 +51,17 @@
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
 
-
       var sel = document.getElementById("drills");
       var val = state.val;
-      if (val === "Day2") {
-        setStateDay2(state);
-      } else if (val === "Day3") {
-        setStateDay3(state);
-      } else if (val === "Day4a") {
-        setStateDay4Reversals(state);
-      } else if (val === "Day4b") {
-        setStateDay4RedGreenLight(state);
+      const valMap = {
+        "Day2":setStateDay2,
+        "Day3":setStateDay3,
+        "Day4a":setStateDay4Reversals,
+        "Day4b":setStateDay4RedGreenLight,
+        "Day5":setStateDay5,
       }
-      if (state.speechText) {
-        speak(state.speechText);
-      } else {
-        speak(state.text);
-      }
+      valMap[val](state);
+      speak(state.speechText ? state.speechText : state.text);
       if (state.textColor) {
         document.getElementById("display").style.color = state.textColor;
       }
@@ -78,6 +72,8 @@
     function getTime(state) {
       if (state.isRed) {
         return 1000 * Math.random() + 1500;//We don't want people waiting very long at a red light.
+      } else if(state.suedeSignature) {
+        return 1000 * Math.random() * (state.max - state.min) + state.min * 1000 + 2000; //Slight extra delay
       } else {
         return 1000 * Math.random() * (state.max - state.min) + state.min * 1000;
       }
@@ -152,6 +148,23 @@
       console.log(state);
     }
 
+    function setStateDay5(state) {
+      let options = [
+        ['Forward', 'Forward <h1>☝️</h1>'],
+        ['Back', 'Back <h1>👇</h1>'],
+        ['Left', 'Left <h1>👈</h1>'],
+        ['Right', 'Right <h1>👉</h1>'],
+        ['Turn Left', 'Turn Left <h1>↩️</h1>'],
+        ['Turn Right', 'Turn Right <h1>↪️</h1>'],
+        ['Suede Signature', 'Suede Signature <h1>💃</h1>'],
+      ];
+      let index = Math.floor(Math.random() * options.length);
+      state.speechText = options[index][0];
+      state.text = options[index][1];
+      state.suedeSignature = state.speechText === 'Suede Signature';
+    }
+
+
     function clearState(state) {
       if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
@@ -196,6 +209,7 @@
           <option value="Day3">Day 3 (Hours on the clock)</option>
           <option value="Day4a">Day 4 (Reversals)</option>
           <option value="Day4b">Day 4 (Red/Green Light)</option>
+          <option value="Day5">Day 5 (Bee Drill+Suede Sigs)</option>
         </select>
       </div>
       <div>
