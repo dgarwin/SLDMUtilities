@@ -129,7 +129,11 @@
     }
 
     function setStateDay4Reversals(state) {
-      state.text = "Reverse";
+      state.reverse = !state.reverse;
+      if (state.reverse)
+        state.text = "Reverse---";
+      else 
+        state.text = "---Reverse";
     }
 
     function setStateDay4RedGreenLight(state) {
