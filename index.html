@@ -1,18 +1,197 @@
+<!DOCTYPE html>
+<html>
+
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-    integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      min-width: 250px;
+    }
 
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
-    integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    /* Include the padding and border in an element's total width and height */
+    * {
+      box-sizing: border-box;
+    }
 
-  <!-- Latest compiled and minified JavaScript -->
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
-    integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
-    crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="styles.css">
+    /* Remove margins and padding from the list */
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Style the list items */
+    ul li {
+      cursor: pointer;
+      position: relative;
+      padding: 12px 8px 12px 40px;
+      list-style-type: none;
+      background: #eee;
+      font-size: 18px;
+      transition: 0.2s;
+
+      /* make the list items unselectable */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Set all odd list items to a different color (zebra-stripes) */
+    ul li:nth-child(odd) {
+      background: #f9f9f9;
+    }
+
+    /* Darker background-color on hover */
+    ul li:hover {
+      background: #ddd;
+    }
+
+    /* Style the close button */
+    .close {
+      position: absolute;
+      right: 0;
+      top: 0;
+      padding: 12px 16px 12px 16px;
+    }
+
+    .close:hover {
+      background-color: Green;
+      color: white;
+    }
+
+    /* Style the header */
+    .header {
+      background-color: Green;
+      padding: 30px 40px;
+      color: white;
+      text-align: center;
+    }
+
+    /* Clear floats after the header */
+    .header:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    /* Style the input */
+    #myInput {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      width: 75%;
+      padding: 10px;
+      float: left;
+      font-size: 16px;
+    }
+
+    /* Style the "Add" button */
+    .addBtn {
+      padding: 10px;
+      width: 25%;
+      background: #d9d9d9;
+      color: #555;
+      float: left;
+      text-align: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      border-radius: 0;
+    }
+
+    .addBtn:hover {
+      background-color: #bbb;
+    }
+
+    .flex-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="myDIV" class="header">
+    <h2 style="margin:5px">Dance Drill Randomizer</h2>
+    <input type="text" id="myInput" placeholder="Phrase to call out...">
+    <span onclick="newElement()" class="addBtn">Add</span>
+  </div>
+  <div class="flex-container">
+    <div >
+      <label>Min Delay (s)</label>
+      <input id="min" type="number" value="2" />
+    </div>
+    <div>
+      <label>Max Delay (s)</label>
+      <input id="max" type="number" value="4" />
+    </div>
+    <div>
+      <label>Duration (s)</label>
+      <input id="dur" type="number" value="90" />
+    </div>
+    <div>
+      <button id="button" onclick="start(window.state)">Start</button>
+    </div>
+  </div>
+  <ul id="myUL">
+    <li>Go</li>
+    <li>Stop</li>
+  </ul>
+  <div class="flex-container">
+    <h4 id="display">Instructions will display here</h4>
+  </div>
+  <script>
+    // Create a "close" button and append it to each list item
+    var myNodelist = document.getElementsByTagName("LI");
+    var i;
+    for (i = 0; i < myNodelist.length; i++) {
+      var span = document.createElement("SPAN");
+      var txt = document.createTextNode("\u00D7");
+      span.className = "close";
+      span.appendChild(txt);
+      myNodelist[i].appendChild(span);
+    }
+
+    // Click on a close button to hide the current list item
+    var close = document.getElementsByClassName("close");
+    var i;
+    for (i = 0; i < close.length; i++) {
+      close[i].onclick = function () {
+        var div = this.parentElement;
+        div.remove();
+      }
+    }
+
+    // Create a new list item when clicking on the "Add" button
+    function newElement() {
+      var li = document.createElement("li");
+      var inputValue = document.getElementById("myInput").value;
+      var t = document.createTextNode(inputValue);
+      li.appendChild(t);
+      if (inputValue === '') {
+        alert("You must write something!");
+      } else {
+        document.getElementById("myUL").appendChild(li);
+      }
+      document.getElementById("myInput").value = "";
+
+      var span = document.createElement("SPAN");
+      var txt = document.createTextNode("\u00D7");
+      span.className = "close";
+      span.appendChild(txt);
+      li.appendChild(span);
+
+      for (i = 0; i < close.length; i++) {
+        close[i].onclick = function () {
+          var div = this.parentElement;
+          div.remove();
+        }
+      }
+    }
+  </script>
   <script>
     function setVoice() {
       var available_voices = window.speechSynthesis.getVoices();
@@ -50,17 +229,7 @@
       if (!state) {
         throw Error("State is undefined. Did you forgt to pass it in?");
       }
-
-      var sel = document.getElementById("drills");
-      var val = state.val;
-      const valMap = {
-        "Day2":setStateDay2,
-        "Day3":setStateDay3,
-        "Day4a":setStateDay4Reversals,
-        "Day4b":setStateDay4RedGreenLight,
-        "Day5":setStateDay5,
-      }
-      valMap[val](state);
+      setState(state);
       speak(state.speechText ? state.speechText : state.text);
       if (state.textColor) {
         document.getElementById("display").style.color = state.textColor;
@@ -85,8 +254,6 @@
       }
       state.min = document.getElementById("min").value;
       state.max = document.getElementById("max").value;
-      var sel = document.getElementById("drills");
-      state.val = sel.options[sel.selectedIndex].value;
       let dur = parseInt(document.getElementById("dur").value);
       speak("Get ready!");
       document.getElementById("display").innerHTML = "Get Ready!";
@@ -110,64 +277,13 @@
       document.getElementById("button").onclick = () => start(state);
     }
 
-    function setStateDay2(state) {
-      let options = [
-        ['Forward', 'Forward <h1>☝️</h1>'],
-        ['Back', 'Back <h1>👇</h1>'],
-        ['Left', 'Left <h1>👈</h1>'],
-        ['Right', 'Right <h1>👉</h1>'],
-        ['Turn Left', 'Turn Left <h1>↩️</h1>'],
-        ['Turn Right', 'Turn Right <h1>↪️</h1>']
-      ];
+    function setState(state) {
+      let options = document.getElementById("myUL").children;
       let index = Math.floor(Math.random() * options.length);
-      state.speechText = options[index][0];
-      state.text = options[index][1];
+      let choice = options[index].innerText;
+      state.speechText = choice.substring(0, choice.length-2);
+      state.text = state.speechText;
     }
-
-    function setStateDay3(state) {
-      state.text = Math.ceil(Math.random() * 12);
-    }
-
-    function setStateDay4Reversals(state) {
-      state.reverse = !state.reverse;
-      if (state.reverse)
-        state.text = "Reverse---";
-      else 
-        state.text = "---Reverse";
-    }
-
-    function setStateDay4RedGreenLight(state) {
-      if (!state) {
-        throw Error("State is undefined. Did you forgt to pass it in?");
-      }
-      if (state.isRed === undefined || state.isRed) {
-        state.isRed = false;
-        state.text = 'Green light';
-        state.textColor = 'green'
-      } else {
-        state.isRed = true;
-        state.text = 'Red light';
-        state.textColor = 'red';
-      }
-      console.log(state);
-    }
-
-    function setStateDay5(state) {
-      let options = [
-        ['Forward', 'Forward <h1>☝️</h1>'],
-        ['Back', 'Back <h1>👇</h1>'],
-        ['Left', 'Left <h1>👈</h1>'],
-        ['Right', 'Right <h1>👉</h1>'],
-        ['Turn Left', 'Turn Left <h1>↩️</h1>'],
-        ['Turn Right', 'Turn Right <h1>↪️</h1>'],
-        ['Suede Signature', 'Suede Signature <h1>💃</h1>'],
-      ];
-      let index = Math.floor(Math.random() * options.length);
-      state.speechText = options[index][0];
-      state.text = options[index][1];
-      state.suedeSignature = state.speechText === 'Suede Signature';
-    }
-
 
     function clearState(state) {
       if (!state) {
@@ -183,46 +299,6 @@
     }
     setup();
   </script>
-</head>
-
-<body>
-  <div class="container">
-    <div class="header clearfix">
-      <h3 class="text-muted">SLDM Footwork Agility Drill Randomizer</h3>
-    </div>
-
-    <div class="jumbotron">
-      <h2>Please select your options</h2>
-      <h5>Don't forget to turn your audio 🔊 on!</h5>
-      <div>
-        <label>Min Delay (s)</label>
-        <input id="min" type="number" value="2" />
-      </div>
-      <div>
-        <label>Max Delay (s)</label>
-        <input id="max" type="number" value="4" />
-      </div>
-      <div>
-        <label>Duration (s)</label>
-        <input id="dur" type="number" value="90" />
-      </div>
-      <div>
-        <label>Drill</label>
-        <select id="drills">
-          <option value="Day2">Day 2 (Different Directions)</option>
-          <option value="Day3">Day 3 (Hours on the clock)</option>
-          <option value="Day4a">Day 4 (Reversals)</option>
-          <option value="Day4b">Day 4 (Red/Green Light)</option>
-          <option value="Day5">Day 5 (Bee Drill+Suede Sigs)</option>
-        </select>
-      </div>
-      <div>
-        <p>
-          Click to begin!
-        </p>
-        <button id="button" onclick="start(window.state)">Start</button>
-      </div>
-      <h4 id="display">Instructions will display here</h4>
-    </div>
-  </div>
 </body>
+
+</html>
