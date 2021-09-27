@@ -109,6 +109,10 @@
       flex-direction: row;
       justify-content: space-around;
     }
+
+    .custom-input {
+      max-width: 4em;
+    }
   </style>
 </head>
 
@@ -120,15 +124,15 @@
     <span onclick="newElement()" class="addBtn">Add</span>
   </div>
   <div class="flex-container">
-    <div >
+    <div class="custom-input">
       <label>Min Delay (s)</label>
       <input id="min" type="number" value="2" />
     </div>
-    <div>
+    <div class="custom-input">
       <label>Max Delay (s)</label>
       <input id="max" type="number" value="4" />
     </div>
-    <div>
+    <div class="custom-input">
       <label>Duration (s)</label>
       <input id="dur" type="number" value="90" />
     </div>
