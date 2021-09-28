@@ -141,16 +141,30 @@
     </div>
     <div>
       <button id="button" onclick="start(window.state)">Start</button>
+      <button id="export" onclick="expo()">Export</button>
     </div>
   </div>
   <ul id="myUL">
-    <li>Go</li>
-    <li>Stop</li>
   </ul>
   <div class="flex-container">
     <h4 id="display">Instructions will display here</h4>
   </div>
   <script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const phrases = urlParams.getAll('phrase');
+    if (phrases.length == 0){
+      phrases.push("Go");
+      phrases.push("Stop");
+    }
+    const ul = document.getElementById("myUL");
+    for (const phrase of phrases){
+      const li = document.createElement("li");
+      const t = document.createTextNode(phrase);
+      li.appendChild(t);
+      ul.appendChild(li);
+    }
+
     // Create a "close" button and append it to each list item
     var myNodelist = document.getElementsByTagName("LI");
     var i;
@@ -282,6 +296,15 @@
       document.getElementById("display").style.color = "black";
       document.getElementById("button").innerHTML = "Start";
       document.getElementById("button").onclick = () => start(state);
+    }
+
+    function expo(){
+      let options = document.getElementById("myUL").children;
+      const phraseString = Array.prototype.slice.call(options).map(option => {
+        const text = option.innerText;
+        return `phrase=${text.substring(0, text.length-2)}`
+      }).join("&");
+      alert(`https://dgarwin.github.io/SLDMUtilities/?${phraseString}`);
     }
 
     function setState(state) {
