@@ -157,6 +157,18 @@
       phrases.push("Go");
       phrases.push("Stop");
     }
+    const max = urlParams.get('max');
+    const min = urlParams.get('min');
+    const dur = urlParams.get('dur');
+    if (max !== null){
+      document.getElementById("max").value = parseInt(max);
+    }
+    if (min !== null){
+      document.getElementById("min").value = parseInt(min);
+    }
+    if (dur !== null){
+      document.getElementById("dur").value = parseInt(dur);
+    }
     const ul = document.getElementById("myUL");
     for (const phrase of phrases){
       const li = document.createElement("li");
@@ -304,7 +316,10 @@
         const text = option.innerText;
         return `phrase=${text.substring(0, text.length-2)}`
       }).join("&");
-      alert(`https://dgarwin.github.io/SLDMUtilities/?${phraseString}`);
+      const dur = document.getElementById("dur").value;
+      const max = document.getElementById("max").value;
+      const min = document.getElementById("min").value;
+      alert(`https://dgarwin.github.io/SLDMUtilities/?dur=${dur}&max=${max}&min=${min}&${phraseString}`);
     }
 
     function setState(state) {
